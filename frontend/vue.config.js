@@ -5,7 +5,7 @@ module.exports = {
     // see https://cli.vuejs.org/config/#devserver-proxy
     devServer: {
         proxy: {
-            '/snake': {
+            '': {
                 target: 'http://localhost:8088',
                 ws: true,
                 changeOrigin: true
