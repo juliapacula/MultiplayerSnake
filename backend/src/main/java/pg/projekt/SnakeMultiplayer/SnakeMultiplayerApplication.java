@@ -9,5 +9,4 @@ public class SnakeMultiplayerApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(SnakeMultiplayerApplication.class, args);
 	}
-
 }

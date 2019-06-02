@@ -1,3 +1,0 @@
-const OutputEndpoint = {
-  currentGame: '/gameStatus',
-};

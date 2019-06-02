@@ -30,8 +30,9 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
         // Adds endpoints that are accessible from the web while
         // doing connection (eg. var socket = new SockJS(here goes endpoint)
         for (WebSocketEndpoint endpoint : WebSocketEndpoint.values()) {
-            registry.addEndpoint(endpoint.getUrl()).withSockJS();
+            registry.addEndpoint(endpoint.getUrl())
+                    .setAllowedOrigins("http://localhost:8080", "ws://localhost:8080")
+                    .withSockJS();
         }
     }
-
 }
