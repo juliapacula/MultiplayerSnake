@@ -6,6 +6,7 @@ export class Snake {
   public middles: Point[];
   private _direction: Direction = Direction.NONE;
   private _color: string = '#000';
+  private _directionChanged: boolean = false;
 
   constructor(start: Point = new Point(), middles?: Point[]) {
     this.head = start;
@@ -25,11 +26,36 @@ export class Snake {
   }
 
   set direction(direction: Direction) {
+    if (this._direction === direction) {
+      return;
+    }
+
+    if (this._direction === Direction.NONE) {
+      this._direction = direction;
+      return;
+    }
+
+    if (this._direction === Direction.UP && direction === Direction.DOWN) {
+      return;
+    }
+
+    if (this._direction === Direction.DOWN && direction === Direction.UP) {
+      return;
+    }
+
+    if (this._direction === Direction.LEFT && direction === Direction.RIGHT) {
+      return;
+    }
+
+    if (this._direction === Direction.RIGHT && direction === Direction.LEFT) {
+      return;
+    }
+
     this._direction = direction;
+    this._directionChanged = true;
   }
 
   get direction() {
-    // TODO: Add validation if head is moving backwards!
     return this._direction;
   }
 
@@ -53,8 +79,12 @@ export class Snake {
   }
 
   public move() {
-    // TODO: Add possibility to move left or right
-    // const previousHead = new Point(this.head.getX(), this.head.getY());
+    if (this._directionChanged) {
+      const previousHead = new Point(this.head.getX(), this.head.getY());
+      this.middles.splice(0, 0, previousHead);
+      this._directionChanged = false;
+    }
+
     if (this.direction !== Direction.NONE) {
       this.head.move(this._direction);
 

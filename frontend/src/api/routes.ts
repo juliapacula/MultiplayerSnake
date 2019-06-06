@@ -1,10 +1,10 @@
 export const ROUTES = {
   output: {
-    game: '/gameStatus',
+    enterGame: '/enter',
   },
   input: {
     sendPosition: '/snake/position/post',
-    getLast: '/snake/position/last',
+    enterGame: '/game/enter',
   },
   websockets: {
     game: '/websocket/game',

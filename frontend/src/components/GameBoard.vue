@@ -1,10 +1,9 @@
 <template>
-  <div class="game-grid">
-    <VueP5 v-on="{ setup, draw }"></VueP5>
-  </div>
+  <VueP5 v-on='{ setup, draw }'></VueP5>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
+import * as config from '@/config';
 import { Direction } from '@/models/directions.enum';
 import { Point } from '@/models/point';
 import { Snake } from '@/models/snake';
@@ -23,21 +22,53 @@ export default Vue.extend({
   },
   data() {
     return {
-      blockSize: 20,
+      blockSize: config.BLOCK_SIZE,
     };
+  },
+  mounted() {
+    window.addEventListener('keydown', this.keydown);
+  },
+  destroyed() {
+    window.removeEventListener('keydown', this.keydown);
   },
   methods: {
     setup(sketch: p5InstanceExtensions) {
       sketch.resizeCanvas(this.size, this.size);
     },
     draw(sketch: p5InstanceExtensions) {
-      sketch.background('lightpink');
+      sketch.background('white');
       this.$__drawSnakes(sketch);
+    },
+    keydown(event: KeyboardEvent) {
+      if (event.defaultPrevented) {
+        return;
+      }
+
+      switch (event.key) {
+        case 'Down':
+        case 'ArrowDown':
+          this.$emit('change-direction', Direction.DOWN);
+          break;
+        case 'Up':
+        case 'ArrowUp':
+          this.$emit('change-direction', Direction.UP);
+          break;
+        case 'Left':
+        case 'ArrowLeft':
+          this.$emit('change-direction', Direction.LEFT);
+          break;
+        case 'Right':
+        case 'ArrowRight':
+          this.$emit('change-direction', Direction.RIGHT);
+          break;
+        default:
+          return;
+      }
     },
     $__drawSnakes(sketch: p5InstanceExtensions) {
       for (const snake of this.snakes) {
         sketch.strokeWeight(1);
-        sketch.stroke(sketch.brightness(snake.color));
+        sketch.stroke('black');
         sketch.fill(snake.color);
         sketch.rect(
           snake.head.scale(this.blockSize).getX(),
@@ -56,10 +87,3 @@ export default Vue.extend({
   },
 });
 </script>
-
-<style scoped lang="scss">
-.game-grid {
-  height: 100%;
-  width: 100%;
-}
-</style>
