@@ -1,15 +1,16 @@
 <template>
-  <div class="home">
+  <div class="game-container">
     <GameBoard
       :snakes="[...snakes, clientSnake]"
-      :size="1000"
+      :size="size"
       @change-direction="changeClientSnakeDirection" />
   </div>
 </template>
 
 <script lang="ts">
-import GameBoard from '@/components/GameBoard.vue';
 import { ROUTES } from '@/api';
+import GameBoard from '@/components/GameBoard.vue';
+import * as config from '@/config';
 import { Snake } from '@/models/snake';
 import { Point } from '@/models/point';
 import Vue from 'vue';
@@ -24,19 +25,14 @@ export default Vue.extend({
   },
   created() {
     this.stompClient = Stomp.over(new SocketJS(ROUTES.websockets.game));
-    this.stompClient.connect({}, (frame: FrameImpl) => {
-      this.stompClient.subscribe(ROUTES.output.game, (message) => {
-        // console.log(JSON.parse(message.body));
-        this.last = JSON.parse(message.body);
-      });
-    });
   },
   mounted() {
     this.clientSnake.color = '#e2e2e2';
-    this.updateInterval = setInterval(this.update, 1000);
+    this.updateInterval = setInterval(this.$__update, 1000);
   },
   destroyed() {
     this.stompClient.disconnect();
+    clearInterval(this.updateInterval);
   },
   data() {
     return {
@@ -45,6 +41,7 @@ export default Vue.extend({
         x: 0,
         y: 0,
       },
+      size: window.innerWidth - window.innerWidth % config.BLOCK_SIZE,
       snakes: [],
       clientSnake: new Snake(new Point(10, 8), [new Point(10, 5)]),
       updateInterval: 0,
@@ -54,7 +51,7 @@ export default Vue.extend({
     changeClientSnakeDirection(direction: Direction) {
       this.clientSnake.direction = direction;
     },
-    update() {
+    $__update() {
       this.clientSnake.move();
     },
     sendCoords(): void {
@@ -65,8 +62,20 @@ export default Vue.extend({
       this.stompClient.send(ROUTES.input.sendPosition, {}, JSON.stringify(object));
     },
     getLastPosition(): void {
-      this.stompClient.send(ROUTES.input.getLast, {}, '');
+      // this.stompClient.send(ROUTES.input.getLast, {}, '');
     },
   },
 });
 </script>
+
+<style lang="scss" scoped>
+.game-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  background-image: linear-gradient(to right, #ffecd2 0%, #fcb69f 100%);
+}
+</style>

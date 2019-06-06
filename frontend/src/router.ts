@@ -1,6 +1,6 @@
+import { Game, Home } from '@/views';
 import Vue from 'vue';
 import Router from 'vue-router';
-import Game from './views/Game.vue';
 
 Vue.use(Router);
 
@@ -8,7 +8,12 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'game',
+      name: 'home',
+      component: Home,
+    },
+    {
+      path: '/gameplay',
+      name: 'gameBoard',
       component: Game,
     },
   ],
