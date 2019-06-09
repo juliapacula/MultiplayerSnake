@@ -1,4 +1,4 @@
-import { Direction } from './directions.enum';
+import { Direction } from './direction.enum';
 
 export class Point {
   private x: number;

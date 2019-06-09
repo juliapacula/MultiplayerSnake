@@ -1,6 +1,7 @@
 <template>
   <div class="game-container">
     <GameBoard
+      v-if="connected"
       :snakes="[...snakes, clientSnake]"
       :size="size"
       @change-direction="changeClientSnakeDirection" />
@@ -11,58 +12,48 @@
 import { ROUTES } from '@/api';
 import GameBoard from '@/components/GameBoard.vue';
 import * as config from '@/config';
-import { Snake } from '@/models/snake';
-import { Point } from '@/models/point';
+import { Direction, Point, Snake } from '@/models';
 import Vue from 'vue';
-import SocketJS from 'sockjs-client';
-import { Stomp, CompatClient, FrameImpl } from '@stomp/stompjs';
-import { Direction } from '../models/directions.enum';
 
 export default Vue.extend({
   name: 'Game',
   components: {
     GameBoard,
   },
-  created() {
-    this.stompClient = Stomp.over(new SocketJS(ROUTES.websockets.game));
-  },
   mounted() {
-    this.clientSnake.color = '#e2e2e2';
+    this.$store.dispatch('setupClient');
     this.updateInterval = setInterval(this.$__update, 1000);
   },
   destroyed() {
-    this.stompClient.disconnect();
     clearInterval(this.updateInterval);
+    this.$store.dispatch('disconnectFromClient');
   },
   data() {
     return {
-      stompClient: {} as CompatClient,
-      last: {
-        x: 0,
-        y: 0,
-      },
-      size: window.innerWidth - window.innerWidth % config.BLOCK_SIZE,
-      snakes: [],
-      clientSnake: new Snake(new Point(10, 8), [new Point(10, 5)]),
+      size: 800 - 800 % config.BLOCK_SIZE,
       updateInterval: 0,
     };
+  },
+  computed: {
+    clientSnake(): Snake {
+      return this.$store.state.clientSnake;
+    },
+    snakes(): Snake {
+      return this.$store.state.snakes;
+    },
+    connected(): boolean {
+      return this.$store.state.isConnected;
+    },
   },
   methods: {
     changeClientSnakeDirection(direction: Direction) {
       this.clientSnake.direction = direction;
     },
     $__update() {
-      this.clientSnake.move();
-    },
-    sendCoords(): void {
-      const object = {
-        x: Math.random() * 10 % 10,
-        y: Math.random() * 10 % 10,
-      };
-      this.stompClient.send(ROUTES.input.sendPosition, {}, JSON.stringify(object));
-    },
-    getLastPosition(): void {
-      // this.stompClient.send(ROUTES.input.getLast, {}, '');
+      if (this.connected) {
+        this.clientSnake.move();
+        this.$store.dispatch('sendPosition');
+      }
     },
   },
 });

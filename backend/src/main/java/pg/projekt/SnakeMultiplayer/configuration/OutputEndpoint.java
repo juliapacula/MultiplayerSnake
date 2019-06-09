@@ -1,7 +1,7 @@
 package pg.projekt.SnakeMultiplayer.configuration;
 
 public enum OutputEndpoint implements Endpoint {
-    CURRENT_GAME(Paths.GAME);
+    WELCOME_GAME(Paths.WELCOME_GAME);
 
     private final String url;
 
@@ -15,6 +15,6 @@ public enum OutputEndpoint implements Endpoint {
     }
 
     public static class Paths {
-        public static final String GAME = "/gameStatus";
+        public static final String WELCOME_GAME = "/welcome";
     }
 }
