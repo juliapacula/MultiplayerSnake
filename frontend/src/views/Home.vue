@@ -1,47 +1,16 @@
 <template>
   <div class="main-screen">
-    <button class="btn">Start game</button>
+    <button
+      @click="$router.push({ name: 'gameBoard' })"
+      class="btn">Start game</button>
   </div>
 </template>
 
 <script lang="ts">
-import { ROUTES } from '@/api';
-import GameBoard from '@/components/GameBoard.vue';
-import * as config from '@/config';
-import { Snake } from '@/models/snake';
-import { Point } from '@/models/point';
 import Vue from 'vue';
-import SocketJS from 'sockjs-client';
-import { Stomp, CompatClient, FrameImpl } from '@stomp/stompjs';
-import { Direction } from '../models/directions.enum';
 
 export default Vue.extend({
-  name: 'Game',
-  components: {
-    GameBoard,
-  },
-  created() {
-    this.stompClient = Stomp.over(new SocketJS(ROUTES.websockets.game));
-    this.stompClient.connect({}, (frame: FrameImpl) => {
-      this.stompClient.subscribe(ROUTES.output.enterGame, (message) => {
-        const id = JSON.parse(message.body);
-        this.$router.push({ name: 'gameBoard', params: { id } })
-      });
-    });
-  },
-  destroyed() {
-    this.stompClient.disconnect();
-  },
-  data() {
-    return {
-      stompClient: {} as CompatClient,
-    };
-  },
-  methods: {
-    startGame() {
-      this.stompClient.send(ROUTES.input.enterGame, {}, "");
-    },
-  },
+  name: 'Home',
 });
 </script>
 

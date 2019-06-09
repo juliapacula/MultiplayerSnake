@@ -4,9 +4,7 @@
 
 <script lang='ts'>
 import * as config from '@/config';
-import { Direction } from '@/models/directions.enum';
-import { Point } from '@/models/point';
-import { Snake } from '@/models/snake';
+import { Direction, Point, Snake } from '@/models';
 import { p5InstanceExtensions } from 'p5';
 import Vue from 'vue';
 import VueP5 from 'vue-p5';

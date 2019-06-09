@@ -1,23 +1,20 @@
 package pg.projekt.SnakeMultiplayer.game;
 
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import pg.projekt.SnakeMultiplayer.configuration.InputEndpoint;
+import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 import pg.projekt.SnakeMultiplayer.configuration.OutputEndpoint;
+import pg.projekt.SnakeMultiplayer.messages.WelcomeClientMessage;
+
+import java.util.UUID;
 
 @Controller
 public class GameController {
-    private Position last;
+    @SubscribeMapping(OutputEndpoint.Paths.WELCOME_GAME)
+    @SendTo(OutputEndpoint.Paths.WELCOME_GAME)
+    public WelcomeClientMessage handleClient() {
+        UUID uuid = UUID.randomUUID();
 
-    @MessageMapping(InputEndpoint.Paths.POST_POSITION)
-    public void receivePotition(Position playerPosition) {
-        last = playerPosition;
-    }
-
-    @MessageMapping(InputEndpoint.Paths.GET_LAST_POSITION)
-    @SendTo(OutputEndpoint.Paths.GAME)
-    public Position sendLastPosition() {
-        return last;
+        return new WelcomeClientMessage(uuid.toString());
     }
 }
