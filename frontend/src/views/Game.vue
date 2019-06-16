@@ -5,6 +5,14 @@
       :snakes="snakesToDraw"
       :size="size"
       @change-direction="changeClientSnakeDirection" />
+    <div class="color overlay">
+      <div class="color-box">
+        <div
+          :style="{ 'background-color': clientColor }"
+          class="color-circle"></div>
+          Client color
+      </div>
+    </div>
     <div
       v-if="hasLost"
       class="lost overlay">
@@ -67,6 +75,9 @@ export default Vue.extend({
     },
     hasLost(): boolean {
       return this.$store.state.hasLost;
+    },
+    clientColor(): string {
+      return this.$store.state.clientSnake.color;
     },
     snakesToDraw(): Snake[] {
       return !this.isClientLoaded ?
@@ -131,6 +142,31 @@ export default Vue.extend({
   &.no-connection {
     color: #fff;
     background-color: rgba(#c42727, 0.5);
+  }
+
+  &.color {
+    align-items: flex-end;
+    justify-content: flex-end;
+    font-size: 1rem;
+
+    .color {
+      &-box {
+        display: flex;
+        align-items: center;
+        padding: 1rem 2rem;
+        margin: 2vw;
+        border-radius: 2rem;
+        background-color: #fff;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+      }
+
+      &-circle {
+        border-radius: 50rem;
+        width: 2vw;
+        height: 2vw;
+        margin-right: 0.5rem;
+      }
+    }
   }
 
   h1,
