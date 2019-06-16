@@ -1,6 +1,6 @@
 import { ROUTES } from '@/api';
-import { Direction, Player, Point, Position, Snake } from '@/models';
-import { Client, FrameImpl, IFrame } from '@stomp/stompjs';
+import { Player, Point, Position, Snake } from '@/models';
+import { Client, IFrame } from '@stomp/stompjs';
 import * as _ from 'lodash';
 import Vue from 'vue';
 import Vuex from 'vuex';
@@ -10,7 +10,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     id: '',
-    clientSnake: {} as Snake,
+    clientSnake: new Snake('', []),
     snakes: [] as Snake[],
     stompClient: {} as Client,
     isConnected: false,
@@ -20,26 +20,27 @@ export default new Vuex.Store({
     setId(state, id) {
       state.id = id;
     },
+    setColor(state, color) {
+      state.clientSnake.color = color;
+    },
     setSnake(state, positions) {
       if (positions.length === 0) {
-        state.clientSnake = {} as Snake;
+        state.clientSnake.points = [];
         return;
       }
 
-      if (_.isEmpty(state.clientSnake)) {
-        state.clientSnake = new Snake(
-          new Point(positions[0].x, positions[0].y),
-          positions.slice(1).map((point: Position) => new Point(point.x, point.y)));
-      } else {
-        state.clientSnake.createFromSnake(new Snake(
-          new Point(positions[0].x, positions[0].y),
-          positions.slice(1).map((point: Position) => new Point(point.x, point.y))));
-      }
+      const newSnake = new Snake(state.id, positions.map((point: Position) => new Point(point.x, point.y)));
+      state.clientSnake.createFromSnake(newSnake);
     },
     setSnakes(state, players) {
-      state.snakes = players.map((player: Player) => new Snake(
-        new Point(player.positions[0].x, player.positions[0].y),
-        player.positions.slice(1).map((point: Position) => new Point(point.x, point.y))));
+      state.snakes = players.map((player: Player) => {
+        return new Snake(player.id,
+          player.positions.map((point: Position) => new Point(point.x, point.y)),
+          player.color);
+      });
+    },
+    removeSnake(state, id) {
+      state.snakes = state.snakes.filter((snake) => snake.id !== id);
     },
     connect(state) {
       state.isConnected = true;
@@ -57,7 +58,7 @@ export default new Vuex.Store({
 
       state.stompClient.configure({
         brokerURL: `ws://localhost:8088${ROUTES.websockets.game}`,
-        debug: (str) => console.log(str),
+        // debug: (str) => console.log(str),
         reconnectDelay: 1000,
         onConnect: (message: IFrame) => {
           commit('setId', message.headers.id);
@@ -68,6 +69,9 @@ export default new Vuex.Store({
                 const currentCientSnake = messageContent.find((snake) => snake.id === state.id);
                 if (currentCientSnake) {
                   commit('setSnake', currentCientSnake.positions);
+                  if (currentCientSnake.color !== state.clientSnake.color) {
+                    commit('setColor', currentCientSnake.color);
+                  }
                 }
                 const otherSnakes = messageContent.filter((snake) => snake.id !== state.id);
                 if (otherSnakes) {
@@ -77,10 +81,12 @@ export default new Vuex.Store({
 
           state.stompClient.subscribe(ROUTES.output.broadcastDeaths,
               (subscribeMessage) => {
-                const messageContent = JSON.parse(subscribeMessage.body) as Player;
-                if (messageContent.id === state.id) {
+                const deadPlayer = JSON.parse(subscribeMessage.body) as Player;
+                if (deadPlayer.id === state.id) {
                   commit('setSnake', []);
                   commit('lose');
+                } else {
+                  commit('removeSnake', deadPlayer.id);
                 }
             });
 
@@ -104,8 +110,7 @@ export default new Vuex.Store({
         state.stompClient.publish({
           destination: ROUTES.input.sendPosition,
           body: JSON.stringify([
-            state.clientSnake.head,
-            ...state.clientSnake.middles,
+            ...state.clientSnake.points,
           ]),
         });
       }

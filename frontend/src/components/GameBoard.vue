@@ -68,11 +68,6 @@ export default Vue.extend({
         sketch.strokeWeight(1);
         sketch.stroke('black');
         sketch.fill(snake.color);
-        sketch.rect(
-          snake.head.scale(this.blockSize).getX(),
-          snake.head.scale(this.blockSize).getY(),
-          this.blockSize,
-          this.blockSize);
         for (const block of snake.getBlocks()) {
           sketch.rect(
             block.scale(this.blockSize).getX(),

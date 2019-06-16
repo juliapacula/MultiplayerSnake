@@ -72,6 +72,14 @@ export class Point {
     }
   }
 
+  public moveBackwards(point: Point) {
+    if (this.isOnAxisX(point)) {
+      this.y = this.y > point.getY() ? this.y + 1 : this.y - 1;
+    } else if (this.isOnAxisY(point)) {
+      this.x = this.x > point.getX() ? this.x + 1 : this.x - 1;
+    }
+  }
+
   public *getPointsBetween(point: Point) {
     if (this.isOnAxisX(point)) {
       if (this.y < point.y) {

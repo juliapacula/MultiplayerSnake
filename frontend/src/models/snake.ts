@@ -2,23 +2,25 @@ import { Direction } from './direction.enum';
 import { Point } from './point';
 
 export class Snake {
-  public head: Point;
-  public middles: Point[];
+  public points: Point[];
+  public id: string;
   private _direction: Direction = Direction.NONE;
   private _color: string = '#000';
-  private _directionChanged: boolean = false;
+  private _directionChanged: Direction = Direction.NONE;
+  private _shouldGrow: boolean = false;
 
-  constructor(start: Point = new Point(), middles?: Point[]) {
-    this.head = start;
-    if (middles) {
-      this.middles = [ ...middles ];
+  constructor(id: string, points: Point[], color?: string) {
+    this.id = id;
+    this.color = color ? color : '#000';
+    if (points.length) {
+      this.points = [ ...points ];
     } else {
-      this.middles = [];
+      this.points = [];
     }
   }
 
   set color(color: string) {
-    this._color = color;
+    this._color = color ? color : '#000';
   }
 
   get color() {
@@ -51,8 +53,7 @@ export class Snake {
       return;
     }
 
-    this._direction = direction;
-    this._directionChanged = true;
+    this._directionChanged = direction;
   }
 
   get direction() {
@@ -60,59 +61,66 @@ export class Snake {
   }
 
   public createFromSnake(snake: Snake) {
-    this.head = snake.head;
-    this.middles = [...snake.middles];
+    this.points = [...snake.points];
   }
 
   get length(): number {
-    if (this.middles.length === 0) {
+    if (this.points.length === 1) {
       return 1;
     } else {
-      let length: number = 0;
+      let length: number = 1;
 
-      length = this.middles.reduce((previous: number, currentPoint: Point, index: number) => {
-          return previous + currentPoint.getDistanceFrom(this.middles[index - 1]);
-        }, this.head.getDistanceFrom(this.middles[0]));
+      for (let index = 0; index  < this.points.length - 1; index++) {
+        length += this.points[index].getDistanceFrom(this.points[index + 1]);
+      }
 
       return length;
     }
   }
 
+  public grow() {
+    if (this.direction !== Direction.NONE) {
+      this._shouldGrow = true;
+    }
+  }
+
   public move() {
-    if (this._directionChanged && this.middles.length) {
-      const previousHead = new Point(this.head.getX(), this.head.getY());
-      this.middles.splice(0, 0, previousHead);
-      this._directionChanged = false;
+    const previousHead = new Point(this.points[0].getX(), this.points[0].getY());
+    if (this._directionChanged !== Direction.NONE && this.points.length) {
+      this.points.splice(1, 0, previousHead);
+      this._direction = this._directionChanged;
+      this._directionChanged = Direction.NONE;
     }
 
     if (this.direction !== Direction.NONE) {
-      this.head.move(this._direction);
+      this.points[0].move(this._direction);
 
-      if (this.middles.length > 1) {
-        this.middles[this.middles.length - 1].moveTowards(this.middles[this.middles.length - 2]);
-        if (this.middles[this.middles.length - 1].isEqual(this.middles[this.middles.length - 2])) {
-          this.middles.pop();
+      if (this.points.length > 1) {
+        this.points[this.points.length - 1].moveTowards(this.points[this.points.length - 2]);
+        if (this.points[this.points.length - 1].isEqual(this.points[this.points.length - 2])) {
+          this.points.pop();
         }
-      } else if (this.middles.length === 1) {
-        this.middles[0].moveTowards(this.head);
       }
+    }
+
+    if (this._shouldGrow) {
+      if (this.points.length > 1) {
+        const previous = this.points[this.points.length - 2];
+        const tail = this.points[this.points.length - 1];
+        tail.moveBackwards(previous);
+      } else {
+        this.points.push(previousHead);
+      }
+
+      this._shouldGrow = false;
     }
   }
 
   public *getBlocks() {
-    let index = -1;
+    yield this.points[0];
 
-    if (index === -1) {
-      index++;
-      yield this.head;
-    }
-
-    for (; index < this.middles.length; index++) {
-      if (index === 0) {
-        yield* this.head.getPointsBetween(this.middles[index]);
-      } else {
-        yield* this.middles[index - 1].getPointsBetween(this.middles[index]);
-      }
+    for (let index = 0; index < this.points.length - 1; index++) {
+      yield* this.points[index].getPointsBetween(this.points[index + 1]);
     }
   }
 
