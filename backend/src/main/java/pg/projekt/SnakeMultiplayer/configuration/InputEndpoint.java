@@ -4,8 +4,9 @@ package pg.projekt.SnakeMultiplayer.configuration;
 // They have defined PREFIX (WebSocketConfiguration) so
 // to send eg. /postPosition you have to actually send /snake/postPosition
 public enum InputEndpoint implements Endpoint {
-    COORD(Paths.POST_POSITION),
-    LAST(Paths.GET_LAST_POSITION);
+    ENTER_GAME(Paths.JOIN_GAME),
+    LEAVE_GAME(Paths.LEAVE_GAME),
+    COORD(Paths.POST_POSITION);
 
     private final String url;
 
@@ -20,6 +21,7 @@ public enum InputEndpoint implements Endpoint {
 
     public static class Paths {
         public static final String POST_POSITION = "/position/post";
-        public static final String GET_LAST_POSITION = "/position/last";
+        public static final String JOIN_GAME = "/join";
+        public static final String LEAVE_GAME = "/leave";
     }
 }

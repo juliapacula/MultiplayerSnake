@@ -1,7 +1,8 @@
 package pg.projekt.SnakeMultiplayer.configuration;
 
 public enum OutputEndpoint implements Endpoint {
-    WELCOME_GAME(Paths.WELCOME_GAME);
+    BROADCAST_DEATHS(Paths.BROADCAST_DEATHS),
+    BROADCAST_POSITIONS(Paths.BROADCAST_POSITIONS);
 
     private final String url;
 
@@ -15,6 +16,7 @@ public enum OutputEndpoint implements Endpoint {
     }
 
     public static class Paths {
-        public static final String WELCOME_GAME = "/welcome";
+        public static final String BROADCAST_DEATHS = "/died";
+        public static final String BROADCAST_POSITIONS = "/positions/all";
     }
 }

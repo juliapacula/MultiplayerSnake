@@ -1,6 +1,7 @@
 package pg.projekt.SnakeMultiplayer.configuration;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -28,5 +29,10 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
             registry.addEndpoint(endpoint.getUrl())
                     .setAllowedOrigins("http://localhost:8080", "ws://localhost:8080");
         }
+    }
+
+    @Override
+    public void configureClientOutboundChannel(ChannelRegistration registration) {
+        registration.interceptors(new ChannelOutboundInterceptor());
     }
 }
