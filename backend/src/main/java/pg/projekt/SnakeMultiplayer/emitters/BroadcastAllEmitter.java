@@ -13,8 +13,8 @@ public class BroadcastAllEmitter {
     @Autowired
     private SimpMessagingTemplate template;
 
-    public void sendPositions(List<Player> positions) {
-        template.convertAndSend(OutputEndpoint.Paths.BROADCAST_POSITIONS, positions);
+    public void sendPositions(List<Player> players) {
+        template.convertAndSend(OutputEndpoint.Paths.BROADCAST_POSITIONS, players);
     }
 
     public void broadcastDeath(Player player) {

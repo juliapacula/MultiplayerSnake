@@ -12,13 +12,13 @@
       <h2>Reload to join again!</h2>
     </div>
     <div
-      v-if="connected && !isClientLoaded"
+      v-else-if="connected && !isClientLoaded"
       class="spectator overlay">
       <h1>Spectator mode 😎</h1>
       <h2>There are more than 5 players in game.</h2>
     </div>
     <div
-      v-if="!connected"
+      v-else-if="!connected"
       class="no-connection overlay">
       <h1>No connection! ❌</h1>
       <h2>Trying to reconnect...</h2>
@@ -31,7 +31,6 @@ import { ROUTES } from '@/api';
 import GameBoard from '@/components/GameBoard.vue';
 import * as config from '@/config';
 import { Direction, Point, Snake } from '@/models';
-import * as _ from 'lodash';
 import Vue from 'vue';
 
 export default Vue.extend({
@@ -42,15 +41,18 @@ export default Vue.extend({
   mounted() {
     this.$store.dispatch('setupClient');
     this.updateInterval = setInterval(this.$__update, 1000);
+    this.growInterval = setInterval(this.$__growSnake, 5000);
   },
   destroyed() {
     clearInterval(this.updateInterval);
+    clearInterval(this.growInterval);
     this.$store.dispatch('disconnectFromClient');
   },
   data() {
     return {
       size: 800 - 800 % config.BLOCK_SIZE,
       updateInterval: 0,
+      growInterval: 0,
     };
   },
   computed: {
@@ -72,8 +74,8 @@ export default Vue.extend({
         : [...this.snakes, this.clientSnake];
     },
     isClientLoaded(): boolean {
-      return !_.isEmpty(this.clientSnake);
-    }
+      return this.clientSnake.points.length !== 0;
+    },
   },
   methods: {
     changeClientSnakeDirection(direction: Direction) {
@@ -83,6 +85,11 @@ export default Vue.extend({
       if (this.connected && this.isClientLoaded) {
         this.clientSnake.move();
         this.$store.dispatch('sendPosition');
+      }
+    },
+    $__growSnake() {
+      if (this.connected && this.isClientLoaded) {
+        this.clientSnake.grow();
       }
     },
   },

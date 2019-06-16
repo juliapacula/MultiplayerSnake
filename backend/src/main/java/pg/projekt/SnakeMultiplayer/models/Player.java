@@ -1,17 +1,18 @@
 package pg.projekt.SnakeMultiplayer.models;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Random;
 
 public class Player {
     private String id;
-//    private Color color;
+    private String color;
     private List<Position> positions = new ArrayList<>();
 
     public Player(String id) {
         this.id = id;
+        color = String.format("#%06x", new Random().nextInt(0xffffff + 1));
         positions.add(new PositionGenerator().getRandom());
     }
 
@@ -19,11 +20,15 @@ public class Player {
         return id;
     }
 
+    public String getColor() {
+        return color;
+    }
+
     public List<Position> getPositions() {
         return positions;
     }
 
-    public void setPositions(List<Position> positions) {
+    public synchronized void setPositions(List<Position> positions) {
         this.positions = positions;
     }
 
