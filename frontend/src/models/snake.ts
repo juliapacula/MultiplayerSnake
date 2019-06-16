@@ -79,7 +79,7 @@ export class Snake {
   }
 
   public move() {
-    if (this._directionChanged) {
+    if (this._directionChanged && this.middles.length) {
       const previousHead = new Point(this.head.getX(), this.head.getY());
       this.middles.splice(0, 0, previousHead);
       this._directionChanged = false;

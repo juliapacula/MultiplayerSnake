@@ -1,10 +1,12 @@
 export const ROUTES = {
   output: {
-    enterGame: '/welcome',
+    broadcastPositions: '/positions/all',
+    broadcastDeaths: '/died',
   },
   input: {
     sendPosition: '/position/post',
-    enterGame: '/enter',
+    enterGame: '/join',
+    leaveGame: '/leave',
   },
   websockets: {
     game: '/websocket/game',
