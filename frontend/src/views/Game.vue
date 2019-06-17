@@ -5,7 +5,9 @@
       :snakes="snakesToDraw"
       :size="size"
       @change-direction="changeClientSnakeDirection" />
-    <div class="color overlay">
+    <div
+      v-if="connected && !hasLost && isClientLoaded"
+      class="color overlay">
       <div class="color-box">
         <div
           :style="{ 'background-color': clientColor }"

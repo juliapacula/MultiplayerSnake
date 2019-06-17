@@ -41,4 +41,15 @@ public class Position {
     public boolean equals(Position position) {
         return x == position.getX() && y == position.getY();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        Position position = (Position) obj;
+        return x == position.getX() && y == position.getY();
+    }
+
+    @Override
+    public int hashCode() {
+        return x * y + x + y;
+    }
 }

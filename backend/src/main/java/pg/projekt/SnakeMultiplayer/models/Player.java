@@ -32,6 +32,10 @@ public class Player {
         this.positions = positions;
     }
 
+    public void randNewPosition() {
+        positions.set(0, new PositionGenerator().getRandom());
+    }
+
     public boolean isColliding(Position positionToCheck) {
         ListIterator<Position> positionIterator = positions.listIterator();
 
@@ -45,15 +49,14 @@ public class Player {
             if (position.equals(positionToCheck)) {
                 return true;
             }
+
             if (nextPosition != null) {
                 if (!positionToCheck.isBetween(position, nextPosition)) {
                     positionIterator.previous();
                 } else {
                     return true;
                 }
-
             }
-
         }
 
         return false;

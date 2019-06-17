@@ -23,6 +23,14 @@ public class MainService {
     public void connectPlayer(String id) {
         if (players.size() < 5) {
             Player playerToAdd = new Player(id);
+            while (true) {
+                try {
+                    checkForPositionColliding(id, playerToAdd.getPositions().get(0));
+                    break;
+                } catch (CollisionException e) {
+                    playerToAdd.randNewPosition();
+                }
+            }
             synchronized (players) {
                 players.put(id, playerToAdd);
             }
@@ -46,20 +54,27 @@ public class MainService {
         return new ArrayList<>(players.values());
     }
 
+
     synchronized Player getPlayer(String id) {
         return players.get(id);
     }
 
 
     void setNewPositions(String playerId, List<Position> positions) throws CollisionException {
+        checkForPositionColliding(playerId, positions.get(0));
+
         synchronized (players) {
-            for (Player player: players.values()) {
-                if (!player.getId().equals(playerId) && player.isColliding(positions.get(0))) {
-                    throw new CollisionException();
-                }
-            }
             Player player = players.get(playerId);
             player.setPositions(positions);
+        }
+    }
+
+
+    private synchronized void checkForPositionColliding(String id, Position position) throws CollisionException {
+        for (Player player: players.values()) {
+            if (!player.getId().equals(id) && player.isColliding(position)) {
+                throw new CollisionException();
+            }
         }
     }
 }
